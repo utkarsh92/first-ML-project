@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-np.random.seed(42)
+#np.random.seed(42)
 
 
 class Scaler():
@@ -178,10 +178,10 @@ def compute_gradients(feature_matrix, weights, targets, C=0.0):
     C: weight for regularization penalty
     return value: numpy array
     '''
-    # grad = -(2/m)*X'.(Xw - Y) + 2Cw 
+    # grad = -(2/m)*X'.(Y - Xw) + 2Cw 
 
     grad = -(2/np.size(feature_matrix, 0)) * feature_matrix.transpose()
-    x = np.subtract(get_predictions(feature_matrix, weights), targets)
+    x = np.subtract(targets, get_predictions(feature_matrix, weights))
     grad = np.dot(grad, x)
     grad = np.add(grad, 2*C*weights)
     return grad
