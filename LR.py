@@ -122,7 +122,7 @@ def mse_loss(feature_matrix, weights, targets):
     # f(x) = Xw
     fx = np.dot(feature_matrix, weights)
 
-    # loss = sumition (f(x) - y)^2
+    # loss = sumition (f(x) - y)^2 / m
     v = np.subtract(fx, targets)
     v = np.multiply(v, v)
     loss = np.sum(v)/np.size(v,0)
@@ -178,10 +178,10 @@ def compute_gradients(feature_matrix, weights, targets, C=0.0):
     C: weight for regularization penalty
     return value: numpy array
     '''
-    # grad = (2/m)*X'.(Xw - Y) + 2Cw 
+    # grad = -(2/m)*X'.(Y - Xw) + 2Cw 
 
-    grad = (2/np.size(feature_matrix, 0)) * feature_matrix.transpose()
-    x = np.subtract(np.dot(feature_matrix, weights), targets)
+    grad = -(2/np.size(feature_matrix, 0)) * feature_matrix.transpose()
+    x = np.subtract(targets, np.dot(feature_matrix, weights))
     grad = np.dot(grad, x)
     grad = np.add(grad, 2*C*weights)
     return grad
@@ -312,11 +312,11 @@ if __name__ == '__main__':
                         train_targets, 
                         dev_features,
                         dev_targets,
-                        lr=1.0,
-                        C=0.0,
+                        lr=1e-12,
+                        C=1e+10,
                         batch_size=32,
                         max_steps=2000000,
-                        eval_steps=5)
+                        eval_steps=1000)
 
     print('evaluating iterative_solution...')
     dev_loss = do_evaluation(dev_features, dev_targets, gradient_descent_soln)
