@@ -81,11 +81,11 @@ def analytical_solution(feature_matrix, targets, C=0.0):
     feature_matrix: numpy array of shape m x n
     targets: numpy array of shape m x 1
     '''
-    # w = [(X'X + CI)^-1] * X'Y
+    # w = [(X'X + mCI)^-1] * X'Y
 
     weights = np.dot(feature_matrix.transpose(), feature_matrix)
     i = np.identity(weights.shape[1]) 
-    weights = np.add(weights, C*i)
+    weights = np.add(weights, feature_matrix.shape[0] * C * i)
     weights = np.linalg.inv(weights)
     x = np.dot(feature_matrix.transpose(), targets)
     weights = np.dot(weights, x)
@@ -292,6 +292,9 @@ def do_gradient_descent(train_feature_matrix,
         '''
         implement early stopping etc. to improve performance.
         '''
+        #if dev_loss < 0.10:
+        #	print("***early_stopping***")
+        #	break
 
     return weights
 
@@ -317,7 +320,8 @@ if __name__ == '__main__':
     scaler = Scaler() #use of scaler is optional
     train_features, train_targets = get_features('data/train.csv',True,scaler), get_targets('data/train.csv')
     dev_features, dev_targets = get_features('data/dev.csv',False,scaler), get_targets('data/dev.csv')
-    a_solution = analytical_solution(train_features, train_targets, C=1e-8)
+
+    a_solution = analytical_solution(train_features, train_targets, C=1e-9)
     print('evaluating analytical_solution...')
     dev_loss = do_evaluation(dev_features, dev_targets, a_solution)
     train_loss = do_evaluation(train_features, train_targets, a_solution)
@@ -334,7 +338,7 @@ if __name__ == '__main__':
                         dev_features,
                         dev_targets,
                         lr=0.12,
-                        C=0.0,
+                        C=1e-11,
                         batch_size=32,
                         max_steps=2000000,
                         eval_steps=10000)
@@ -343,3 +347,5 @@ if __name__ == '__main__':
     dev_loss = do_evaluation(dev_features, dev_targets, gradient_descent_soln)
     train_loss = do_evaluation(train_features, train_targets, gradient_descent_soln)
     print('gradient_descent_soln \t train loss: {}, dev_loss: {} '.format(train_loss, dev_loss))
+
+    #test_set(gradient_descent_soln, scaler)
